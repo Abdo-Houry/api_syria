@@ -10,6 +10,10 @@ import {
     authMiddleware
 } from "../middleware/auth.middleware";
 
+import {
+    loginRateLimiter
+} from "../middleware/rate-limit.middleware";
+
 
 const router = Router();
 
@@ -18,6 +22,7 @@ const router = Router();
 // ==========================
 router.post(
     "/login",
+    loginRateLimiter,
     login
 );
 

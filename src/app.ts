@@ -12,6 +12,8 @@ import helmet from "helmet";
 
 import morgan from "morgan";
 
+import { env } from "./config/env";
+
 import adminRoutes from "./routes/admin.routes";
 
 import { errorMiddleware } from "./middleware/error.middleware";
@@ -45,7 +47,47 @@ import areaRoutes from "./routes/area.routes";
 const app = express();
 
 
-app.use(cors());
+/*
+    خلف وسيط عكسي (منصّات النشر، nginx) يصل كل طلب بعنوان الوسيط نفسه.
+    بدون هذا الإعداد يرى محدِّد المعدّل المستخدمين كلّهم عنواناً واحداً،
+    فيحظرهم جماعياً بينما يبقى المهاجم غير متأثّر.
+*/
+
+app.set("trust proxy", 1);
+
+
+/*
+    CORS مقيَّد بأصل الواجهة.
+
+    كان مفتوحاً لكل الأصول، أي أن أي موقع يستطيع مناداة الـ API من متصفّح
+    الزائر. الطلبات بلا ترويسة Origin تمرّ كما هي — وهي طلبات الصور
+    والملفات الثابتة وأي نداء من خارج المتصفّح، ولا يحكمها CORS أصلاً.
+
+    الأصل غير المسموح لا يُرفض بخطأ: نمتنع فقط عن إرسال ترويسات CORS،
+    فيمنعه المتصفّح بنفسه بدل أن يُسجَّل الطلب كعطل في الخادم.
+*/
+
+app.use(
+    cors({
+
+        origin: (origin, callback) => {
+
+            if (!origin) return callback(null, true);
+
+            const normalized =
+                origin.replace(/\/$/, "");
+
+            callback(
+                null,
+                env.CORS_ORIGINS.includes(normalized)
+            );
+
+        },
+
+        credentials: true
+
+    })
+);
 
 app.use(
     helmet({
@@ -110,7 +152,13 @@ const uploadsRoot =
 app.use(
     "/uploads",
     express.static(uploadsRoot, {
-        maxAge: "7d"
+        /*
+           أسماء الملفات معرّفات فريدة لا تتكرّر، فمحتوى الملف لا يتغيّر
+           أبداً بعد رفعه. immutable تعني ألّا يعيد المتصفّح سؤال الخادم
+           عنه إطلاقاً بعد أول تحميل، بدل مراجعته كل أسبوع.
+        */
+        maxAge: "365d",
+        immutable: true
     })
 );
 

@@ -1,6 +1,10 @@
 import bcrypt from "bcrypt";
 
 import {
+    randomInt
+} from "crypto";
+
+import {
     LessThan
 } from "typeorm";
 
@@ -44,12 +48,19 @@ export class OtpService {
 
 
 
-    /* رمز رقمي من ستّ خانات — أطول ما يُدخَل يدوياً براحة. */
+    /*
+        رمز رقمي من ستّ خانات — أطول ما يُدخَل يدوياً براحة.
+
+        المصدر `randomInt` من crypto لا `Math.random`: الأخير مولّد سريع
+        لا سرّي، وحالته الداخلية تُستنتج من عدد قليل من مخرجاته، فيصبح
+        الرمز التالي متوقَّعاً — ومن يتوقّع رمز غيره يدخل حسابه بلا حاجة
+        إلى بريده. تهشير الرمز في القاعدة لا يقي من ذلك.
+    */
 
     private generateCode(): string {
 
         return String(
-            Math.floor(100000 + Math.random() * 900000)
+            randomInt(100000, 1000000)
         );
 
     }

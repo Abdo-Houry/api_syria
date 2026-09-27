@@ -18,6 +18,11 @@ import {
     anyAuthMiddleware
 } from "../middleware/auth.middleware";
 
+import {
+    optimizeImages
+} from "../middleware/optimize-image.middleware";
+
+
 
 
 const router =
@@ -42,6 +47,8 @@ router.post(
 
     upload.single("image"),
 
+    optimizeImages,
+
     uploadImage
 
 );
@@ -55,6 +62,8 @@ router.post(
     anyAuthMiddleware,
 
     upload.array("images", 10),
+
+    optimizeImages,
 
     uploadImages
 

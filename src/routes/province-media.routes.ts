@@ -23,6 +23,11 @@ import {
 }
     from "../config/multer";
 
+import {
+    optimizeImages
+} from "../middleware/optimize-image.middleware";
+
+
 
 
 const router =
@@ -40,6 +45,8 @@ router.post(
         "images",
         10
     ),
+
+    optimizeImages,
 
     uploadImages
 

@@ -21,6 +21,13 @@ import {
     from "../controllers/user-auth.controller";
 
 
+import {
+    loginRateLimiter,
+    otpEmailRateLimiter,
+    otpIpRateLimiter
+} from "../middleware/rate-limit.middleware";
+
+
 
 const router =
     Router();
@@ -30,6 +37,8 @@ const router =
 
 router.post(
     "/register",
+    otpIpRateLimiter,
+    otpEmailRateLimiter,
     register
 );
 
@@ -37,6 +46,7 @@ router.post(
 
 router.post(
     "/login",
+    loginRateLimiter,
     login
 );
 
@@ -55,6 +65,8 @@ router.post(
 
 router.post(
     "/resend-otp",
+    otpIpRateLimiter,
+    otpEmailRateLimiter,
     resendOtp
 );
 
@@ -66,6 +78,8 @@ router.post(
 
 router.post(
     "/forgot-password",
+    otpIpRateLimiter,
+    otpEmailRateLimiter,
     forgotPassword
 );
 

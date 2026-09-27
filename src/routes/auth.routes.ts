@@ -7,6 +7,10 @@ import {
     unifiedLogin
 } from "../controllers/auth.controller";
 
+import {
+    loginRateLimiter
+} from "../middleware/rate-limit.middleware";
+
 
 
 const router =
@@ -23,6 +27,7 @@ const router =
 
 router.post(
     "/login",
+    loginRateLimiter,
     unifiedLogin
 );
 

@@ -32,12 +32,40 @@ export const env = {
         process.env.DB_NAME || "",
 
 
+    /*
+       مزامنة بنية القاعدة من الكيانات.
+
+       غير محدَّدة ⇒ مفعّلة في التطوير ومطفأة في الإنتاج. تُضبط صراحةً
+       بـ DB_SYNCHRONIZE=true لأول نشر فقط (لإنشاء الجداول) ثم تُعاد إلى false.
+    */
+
+    DB_SYNCHRONIZE:
+        process.env.DB_SYNCHRONIZE
+            ? process.env.DB_SYNCHRONIZE === "true"
+            : (process.env.NODE_ENV || "development") !== "production",
+
+
     JWT_SECRET:
         process.env.JWT_SECRET || "",
 
 
     JWT_EXPIRES_IN:
         process.env.JWT_EXPIRES_IN || "7d",
+
+
+    /*
+       حساب المشرف الأول.
+
+       لا قيمة افتراضية لكلمة المرور عمداً: سكربت التهيئة يرفض العمل بدونها،
+       فلا يمكن أن ينتهي في الإنتاج حساب بكلمة مرور معروفة من الكود.
+    */
+
+    ADMIN_USERNAME:
+        process.env.ADMIN_USERNAME || "admin",
+
+
+    ADMIN_PASSWORD:
+        process.env.ADMIN_PASSWORD || "",
 
 
     APP_URL:
@@ -51,6 +79,20 @@ export const env = {
 
     FRONTEND_URL:
         process.env.FRONTEND_URL || "http://localhost:5173",
+
+
+    /*
+       الأصول المسموح لها بمناداة الـ API من المتصفّح.
+
+       غير محدَّدة ⇒ أصل الواجهة وحده. تُكتب مفصولة بفاصلة عند الحاجة
+       إلى أكثر من عنوان (مثل النطاق مع www ومن دونها).
+    */
+
+    CORS_ORIGINS:
+        (process.env.CORS_ORIGINS || process.env.FRONTEND_URL || "http://localhost:5173")
+            .split(",")
+            .map((origin) => origin.trim().replace(/\/$/, ""))
+            .filter(Boolean),
 
 
 

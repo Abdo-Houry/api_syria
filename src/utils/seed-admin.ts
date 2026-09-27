@@ -4,8 +4,50 @@ import { AppDataSource } from "../config/database";
 
 import { Admin } from "../entities/admin.entity";
 
+import { env } from "../config/env";
+
+
+/* أدنى طول مقبول لكلمة مرور المشرف — حساب واحد يفتح لوحة التحكّم كاملة. */
+const MIN_PASSWORD_LENGTH = 8;
+
 
 const createAdmin = async()=>{
+
+
+    /*
+        كلمة المرور تأتي من البيئة لا من الكود.
+
+        كانت مكتوبة هنا حرفياً، فأي نسخة من المشروع تعرف كلمة مرور
+        لوحة التحكّم. الآن يتوقّف السكربت إن لم تُضبط، بدل أن ينشئ
+        حساباً بكلمة مرور معروفة.
+    */
+
+    const username = env.ADMIN_USERNAME.trim();
+
+    const password = env.ADMIN_PASSWORD;
+
+
+    if(!password){
+
+        console.error(
+            "ADMIN_PASSWORD is not set — add it to .env then run this again."
+        );
+
+        process.exit(1);
+
+    }
+
+
+    if(password.length < MIN_PASSWORD_LENGTH){
+
+        console.error(
+            `ADMIN_PASSWORD must be at least ${MIN_PASSWORD_LENGTH} characters.`
+        );
+
+        process.exit(1);
+
+    }
+
 
 
     await AppDataSource.initialize();
@@ -21,7 +63,7 @@ const createAdmin = async()=>{
         await repository.findOne({
 
             where:{
-                username:"admin"
+                username
             }
 
         });
@@ -31,7 +73,7 @@ const createAdmin = async()=>{
     if(exists){
 
         console.log(
-            "Admin already exists"
+            `Admin "${username}" already exists`
         );
 
         process.exit();
@@ -43,7 +85,7 @@ const createAdmin = async()=>{
     const hashedPassword =
         await bcrypt.hash(
 
-            "123456",
+            password,
 
             10
 
@@ -54,7 +96,7 @@ const createAdmin = async()=>{
     const admin =
         repository.create({
 
-            username:"admin",
+            username,
 
             password:hashedPassword
 
@@ -67,7 +109,7 @@ const createAdmin = async()=>{
 
 
     console.log(
-        "Admin created successfully"
+        `Admin "${username}" created successfully`
     );
 
 
